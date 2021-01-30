@@ -1,53 +1,36 @@
-import React from "react";
+import React from 'react';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import './App.css';
-import {getArticles} from "./api";
-import {Container,Header} from "semantic-ui-react";
-import ArticleList from "./components/ArticleList";
-import SearchBar from "./components/SearchBar";
-class App extends React.Component {
-  state={
-    articles:[],
-    apiError:"",
-    searchTopic:"",
-    totalResults:"",
-    loading:false,
-  }
-  searchForTopic=async(topic)=> {
-    try{
-      this.setState({loading:true});
-      const response=await getArticles(topic);
-      this.setState({articles:response.articles,
-      searchTopic:topic,
-    totalResults:response.totalResults});
-    }catch(error){
-      this.setState({apiError:"Could not Find any Articles"});
+import Dashboard from './components/Dashboard';
+import Login from './components/Login';
+import Preferences from './components/Preferences';
+import useToken from './components/UseToken';
+import BasePage from "./BasePage";
 
-    }
-    this.setState({loading:false});
+function App() {
+
+  const { token, setToken } = useToken();
+
+  if(!token) {
+    return <Login setToken={setToken} />
   }
-  render(){
+
   return (
-   <Container>
-     <Header as="h2" style={{textAlign:"center",margin:20}}>
-
-Apna Akhbaar
-     </Header>
-     <SearchBar searchForTopic={this.searchForTopic}/>
-     {this.state.loading &&(
-       <p style={{textAlign:"center"}}>Searching For Articles....</p>
-     )}
-{this.state.articles.length>0&&(
-  <Header as="h4" style={{textAlign:"center",margin:20}}>
-    Found{this.state.totalResults} articles on "{this.state.searchTopic}"
-  </Header>
-)}
-
-
-     {this.state.articles.length>0 && <ArticleList articles={this.state.articles}/>}
-     {this.state.apiError && <p>Could not find any article. Please try again!</p>}
-   </Container>
+    <div className="wrapper">
+      
+      <BrowserRouter>
+        <Switch>
+        <Route path="/dashboard">
+            <BasePage />
+          </Route>
+         
+          <Route path="/preferences">
+            <Preferences />
+          </Route>
+        </Switch>
+      </BrowserRouter>
+    </div>
   );
-  }
 }
 
 export default App;
